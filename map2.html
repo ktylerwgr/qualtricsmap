@@ -68,11 +68,17 @@
         });
       }
     </script>
+  </head>
+  <body>
+    <input id="search" type="text" placeholder="Search for address or place..." />
+    <div id="map"></div>
+  </body>
+</html>
 <script>
   let map, marker;
 
   function initMap() {
-    const defaultLocation = { lat: 33.275906, lng: -111.829139 }; // LA
+    const defaultLocation = { lat: 34.0522, lng: -118.2437 }; // LA
 
     map = new google.maps.Map(document.getElementById("map"), {
       center: defaultLocation,
@@ -122,9 +128,3 @@
     });
   }
 </script>
-  </head>
-  <body>
-    <input id="search" type="text" placeholder="Search for address or place..." />
-    <div id="map"></div>
-  </body>
-</html>
