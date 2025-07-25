@@ -1,94 +1,76 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Qualtrics Google Map</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interactive Map</title>
+    <meta charset="utf-8" />
     <style>
-      /* Basic page styling */
       html, body {
         height: 100%;
         margin: 0;
-        padding: 0;
+        font-family: sans-serif;
+      }
+      #search {
+        width: 94%;
+        margin: 10px auto;
+        padding: 12px;
+        font-size: 16px;
+        display: block;
       }
       #map {
-        height: 100%;
-      }
-      #pac-input {
-        background-color: #fff;
-        font-size: 16px;
-        padding: 8px 12px;
-        width: 300px;
-        margin-top: 10px;
-        margin-left: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        z-index: 5;
-        position: absolute;
+        width: 100%;
+        height: 85%;
       }
     </style>
-  </head>
-  <body>
-    <input id="pac-input" class="controls" type="text" placeholder="Search for a place" />
-    <div id="map"></div>
-
+    <script>
+      function sendToQualtrics(lat, lng) {
+        window.parent.postMessage(
+          JSON.stringify({ lat: lat, lng: lng }),
+          "*"
+        );
+      }
+    </script>
+    <script async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDe_b3mXwTldqkLAjzK4oK27QbCKx_gGoU&libraries=places&callback=initMap">
+    </script>
     <script>
       let map, marker;
 
       function initMap() {
-        const defaultLocation = { lat: 34.0522, lng: -118.2437 }; // Default to Los Angeles
-
+        const defaultLoc = { lat: 33.275906, lng: -111.829139 };
         map = new google.maps.Map(document.getElementById("map"), {
-          center: defaultLocation,
-          zoom: 13,
+          center: defaultLoc,
+          zoom: 15,
         });
 
-        const input = document.getElementById("pac-input");
-        const searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-        map.addListener("bounds_changed", () => {
-          searchBox.setBounds(map.getBounds());
+        marker = new google.maps.Marker({
+          position: defaultLoc,
+          map,
+          draggable: true,
         });
 
-        searchBox.addListener("places_changed", () => {
-          const places = searchBox.getPlaces();
-          if (places.length === 0) return;
+        marker.addListener("dragend", function () {
+          const pos = marker.getPosition();
+          sendToQualtrics(pos.lat(), pos.lng());
+        });
 
-          const place = places[0];
-          if (!place.geometry || !place.geometry.location) return;
+        const input = document.getElementById("search");
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo("bounds", map);
 
-          if (marker) marker.setMap(null);
+        autocomplete.addListener("place_changed", function () {
+          const place = autocomplete.getPlace();
+          if (!place.geometry) return;
 
-          marker = new google.maps.Marker({
-            map,
-            position: place.geometry.location,
-          });
-
-          map.setCenter(place.geometry.location);
+          map.panTo(place.geometry.location);
           map.setZoom(15);
-
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          const address = place.formatted_address || place.name;
-
-          // Send the data back to Qualtrics (via parent window)
-          window.parent.postMessage(
-            {
-              type: "map-data",
-              lat,
-              lng,
-              address,
-            },
-            "*"
-          );
+          marker.setPosition(place.geometry.location);
+          sendToQualtrics(place.geometry.location.lat(), place.geometry.location.lng());
         });
       }
     </script>
-
-    <script
-      async
-      defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-gop-TzjhwOEFPaKNdapJqMX9EsbOSU8&libraries=places&callback=initMap"
-    ></script>
+  </head>
+  <body>
+    <input id="search" type="text" placeholder="Search for address or place..." />
+    <div id="map"></div>
   </body>
 </html>
