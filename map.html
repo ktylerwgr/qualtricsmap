@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactive Map</title>
+    <meta charset="utf-8" />
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        font-family: sans-serif;
+      }
+      #search {
+        width: 94%;
+        margin: 10px auto;
+        padding: 12px;
+        font-size: 16px;
+        display: block;
+      }
+      #map {
+        width: 100%;
+        height: 85%;
+      }
+    </style>
+    <script>
+      function sendToQualtrics(lat, lng) {
+        window.parent.postMessage(
+          JSON.stringify({ lat: lat, lng: lng }),
+          "*"
+        );
+      }
+    </script>
+    <script async
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDe_b3mXwTldqkLAjzK4oK27QbCKx_gGoU&libraries=places&callback=initMap">
+    </script>
+    <script>
+      let map, marker;
+
+      function initMap() {
+        const defaultLoc = { lat: 33.275906, lng: -111.829139 };
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: defaultLoc,
+          zoom: 15,
+        });
+
+        marker = new google.maps.Marker({
+          position: defaultLoc,
+          map,
+          draggable: true,
+        });
+
+        marker.addListener("dragend", function () {
+          const pos = marker.getPosition();
+          sendToQualtrics(pos.lat(), pos.lng());
+        });
+
+        const input = document.getElementById("search");
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo("bounds", map);
+
+        autocomplete.addListener("place_changed", function () {
+          const place = autocomplete.getPlace();
+          if (!place.geometry) return;
+
+          map.panTo(place.geometry.location);
+          map.setZoom(15);
+          marker.setPosition(place.geometry.location);
+          sendToQualtrics(place.geometry.location.lat(), place.geometry.location.lng());
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <input id="search" type="text" placeholder="Search for address or place..." />
+    <div id="map"></div>
+  </body>
+</html>
