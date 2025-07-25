@@ -128,21 +128,3 @@
     });
   }
 </script>
-function addDraggableMarker() {
-  // Ensure the map variable exists in your global scope
-  const initialPosition = { lat: 33.3528, lng: -111.7890 }; // Replace with your desired start location
-
-  const marker = new google.maps.Marker({
-    position: initialPosition,
-    map: map, // assumes you already initialized `map` elsewhere
-    draggable: true,
-    title: "Drag me!"
-  });
-
-  // Optional: Capture the new position after drag
-  marker.addListener('dragend', function () {
-    const pos = marker.getPosition();
-    console.log("New position:", pos.lat(), pos.lng());
-    // You could also store this in a hidden field if you're using a form
-  });
-}
