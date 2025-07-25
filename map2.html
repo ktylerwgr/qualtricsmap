@@ -36,7 +36,7 @@
       let map, marker;
 
       function initMap() {
-        const defaultLoc = { lat: 33.275906, lng: -111.829139 };
+        const defaultLoc = { lat: 33.3528, lng: -111.7890 };
         map = new google.maps.Map(document.getElementById("map"), {
           center: defaultLoc,
           zoom: 15,
@@ -78,7 +78,7 @@
   let map, marker;
 
   function initMap() {
-    const defaultLocation = { lat: 34.0522, lng: -118.2437 }; // LA
+    const defaultLocation = { lat: 33.3528, lng: -111.7890 }; // LA
 
     map = new google.maps.Map(document.getElementById("map"), {
       center: defaultLocation,
@@ -128,3 +128,21 @@
     });
   }
 </script>
+function addDraggableMarker() {
+  // Ensure the map variable exists in your global scope
+  const initialPosition = { lat: 33.3528, lng: -111.7890 }; // Replace with your desired start location
+
+  const marker = new google.maps.Marker({
+    position: initialPosition,
+    map: map, // assumes you already initialized `map` elsewhere
+    draggable: true,
+    title: "Drag me!"
+  });
+
+  // Optional: Capture the new position after drag
+  marker.addListener('dragend', function () {
+    const pos = marker.getPosition();
+    console.log("New position:", pos.lat(), pos.lng());
+    // You could also store this in a hidden field if you're using a form
+  });
+}
