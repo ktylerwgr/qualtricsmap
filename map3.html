@@ -57,6 +57,8 @@
       if (status === "OK" && results[0]) {
         const address = results[0].formatted_address;
 
+    console.log("Sending location to Qualtrics:", lat, lng, address);
+
       // Send data to parent (Qualtrics)
       window.parent.postMessage(
         {
