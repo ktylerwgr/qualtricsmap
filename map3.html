@@ -79,3 +79,13 @@
   async
   defer
 ></script>
+
+window.parent.postMessage(
+  {
+    type: "locationUpdate",
+    latitude: lat,
+    longitude: lng,
+    address: address
+  },
+  "*"
+);
