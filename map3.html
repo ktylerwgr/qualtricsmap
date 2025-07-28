@@ -57,12 +57,16 @@
       if (status === "OK" && results[0]) {
         const address = results[0].formatted_address;
 
-        // Send to Qualtrics embedded data
-        if (typeof Qualtrics !== "undefined" && Qualtrics.SurveyEngine) {
-          Qualtrics.SurveyEngine.setEmbeddedData("latitude", lat);
-          Qualtrics.SurveyEngine.setEmbeddedData("longitude", lng);
-          Qualtrics.SurveyEngine.setEmbeddedData("address", address);
-        }
+      // Send data to parent (Qualtrics)
+      window.parent.postMessage(
+        {
+          type: "locationUpdate",
+          latitude: lat,
+          longitude: lng,
+          address: address
+        },
+        "*"
+      );
 
         // Optional: Show on screen
         document.getElementById("lat").textContent = lat.toFixed(6);
@@ -80,12 +84,3 @@
   defer
 ></script>
 
-window.parent.postMessage(
-  {
-    type: "locationUpdate",
-    latitude: lat,
-    longitude: lng,
-    address: address
-  },
-  "*"
-);
